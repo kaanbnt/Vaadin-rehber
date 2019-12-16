@@ -7,14 +7,11 @@ import com.vaadin.Domain.Person;
 import com.vaadin.annotations.Theme;
 import com.vaadin.annotations.VaadinServletConfiguration;
 import com.vaadin.annotations.Widgetset;
-import com.vaadin.data.Container;
-import com.vaadin.data.Item;
-import com.vaadin.data.Property;
+import com.vaadin.event.ItemClickEvent;
 import com.vaadin.server.VaadinRequest;
 import com.vaadin.server.VaadinServlet;
 import com.vaadin.ui.*;
 
-import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -28,6 +25,10 @@ public class MyUI extends UI {
     DatabaseTransaction dbTransaction=new DatabaseTransaction();
     Table table = new Table("KİŞİ LİSTESİ");
     FormLayout formLayout = new FormLayout();
+    KullaniciTextField idField;
+    KullaniciTextField newNameField;
+    KullaniciTextField newSurnameField;
+    KullaniciTextField newPhoneField;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -51,67 +52,23 @@ public class MyUI extends UI {
         table.addContainerProperty("AD", String.class, null);
         table.addContainerProperty("SOYAD", String.class, null);
         table.addContainerProperty("NUMARA", String.class, null);
+
+        table.addItemClickListener(new ItemClickEvent.ItemClickListener() {
+            @Override
+            public void itemClick(ItemClickEvent itemClickEvent) {
+                Integer id = (Integer) itemClickEvent.getItem().getItemProperty("ID").getValue();
+                idField.setValue(id.toString());
+                String ad= (String) itemClickEvent.getItem().getItemProperty("AD").getValue();
+                newNameField.setValue(ad);
+                String soyad= (String) itemClickEvent.getItem().getItemProperty("SOYAD").getValue();
+                newSurnameField.setValue(soyad);
+                String telefon= (String) itemClickEvent.getItem().getItemProperty("NUMARA").getValue();
+                newPhoneField.setValue(telefon);
+            }
+        });
+
         tableListele(table);
         formLayout.addComponents(table);
-    }
-
-    private void kullaniciGuncelle() {
-        KullaniciTextField id = new KullaniciTextField();
-        id.setCaption("Güncellenecek Kişinin ID'si ");
-        formLayout.addComponent(id);
-
-        KullaniciTextField newNameField = new KullaniciTextField();
-        newNameField.setCaption("Adı");
-        formLayout.addComponent(newNameField);
-
-        KullaniciTextField newSurnameField = new KullaniciTextField();
-        newSurnameField.setCaption("Soyadı");
-        formLayout.addComponent(newSurnameField);
-
-        KullaniciTextField newPhoneField = new KullaniciTextField();
-        newPhoneField.setCaption("Telefon");
-        formLayout.addComponent(newPhoneField);
-
-        Button update=new Button();
-        update.setCaption("Güncelle");
-        update.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                Person person = new Person();
-
-                person.setId(Integer.parseInt(id.getValue()));
-                person.setAdi(newNameField.getValue());
-                person.setSoyadi(newSurnameField.getValue());
-                person.setNumara(newPhoneField.getValue());
-
-                DatabaseTransaction dbTransaction = new DatabaseTransaction();
-                dbTransaction.updatePerson(person);
-                Notification.show("Kişi Güncellendi!");
-                tableListele(table);
-            }
-        });
-        formLayout.addComponents(update);
-    }
-
-    private void kullaniciSil() {
-        KullaniciTextField idField = new KullaniciTextField();
-        idField.setCaption("Silinecek Kişi Id:");
-        formLayout.addComponent(idField);
-        Button remove = new Button();
-        remove.setCaption("Sil");
-        remove.addClickListener(new Button.ClickListener() {
-            @Override
-            public void buttonClick(Button.ClickEvent clickEvent) {
-                Person person = new Person();
-                person.setId(Integer.parseInt(idField.getValue()));
-
-                DatabaseTransaction dbTransaction = new DatabaseTransaction();
-                dbTransaction.removePerson(person);
-                Notification.show("Kişi Silindi!");
-                tableListele(table);
-            }
-        });
-        formLayout.addComponents(remove);
     }
 
     private void kullaniciKaydet() {
@@ -142,6 +99,66 @@ public class MyUI extends UI {
             }
         });
         formLayout.addComponent(insert);
+    }
+
+    private void kullaniciSil() {
+        KullaniciTextField idField = new KullaniciTextField();
+        idField.setCaption("Silinecek Kişi ID'si");
+        formLayout.addComponent(idField);
+
+        Button remove = new Button();
+        remove.setCaption("Sil");
+        remove.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                Person person = new Person();
+                person.setId(Integer.parseInt(idField.getValue()));
+
+                DatabaseTransaction dbTransaction = new DatabaseTransaction();
+                dbTransaction.removePerson(person);
+                Notification.show("Kişi Silindi!");
+                tableListele(table);
+            }
+        });
+        formLayout.addComponents(remove);
+    }
+
+    private void kullaniciGuncelle() {
+        idField = new KullaniciTextField();
+        idField.setCaption("Güncellenecek Kişinin ID'si ");
+        formLayout.addComponent(idField);
+
+        newNameField = new KullaniciTextField();
+        newNameField.setCaption("Adı");
+        formLayout.addComponent(newNameField);
+
+        newSurnameField = new KullaniciTextField();
+        newSurnameField.setCaption("Soyadı");
+        formLayout.addComponent(newSurnameField);
+
+        newPhoneField = new KullaniciTextField();
+        newPhoneField.setCaption("Telefon");
+        formLayout.addComponent(newPhoneField);
+
+        Button update=new Button();
+        update.setCaption("Güncelle");
+        update.addClickListener(new Button.ClickListener() {
+            @Override
+            public void buttonClick(Button.ClickEvent clickEvent) {
+                Person person = new Person();
+
+                person.setId(Integer.parseInt(idField.getValue()));
+                person.setAdi(newNameField.getValue());
+                person.setSoyadi(newSurnameField.getValue());
+                person.setNumara(newPhoneField.getValue());
+
+                DatabaseTransaction dbTransaction = new DatabaseTransaction();
+                dbTransaction.updatePerson(person);
+                Notification.show("Kişi Güncellendi!");
+                tableListele(table);
+            }
+        });
+        formLayout.addComponents(update);
     }
 
     private void tableListele(Table table) {
