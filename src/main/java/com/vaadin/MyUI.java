@@ -29,6 +29,7 @@ public class MyUI extends UI {
     KullaniciTextField newNameField;
     KullaniciTextField newSurnameField;
     KullaniciTextField newPhoneField;
+    KullaniciTextField idDeleteField;
 
     @Override
     protected void init(VaadinRequest vaadinRequest) {
@@ -58,6 +59,8 @@ public class MyUI extends UI {
             public void itemClick(ItemClickEvent itemClickEvent) {
                 Integer id = (Integer) itemClickEvent.getItem().getItemProperty("ID").getValue();
                 idField.setValue(id.toString());
+                Integer idDelete = (Integer) itemClickEvent.getItem().getItemProperty("ID").getValue();
+                idDeleteField.setValue(idDelete.toString());
                 String ad= (String) itemClickEvent.getItem().getItemProperty("AD").getValue();
                 newNameField.setValue(ad);
                 String soyad= (String) itemClickEvent.getItem().getItemProperty("SOYAD").getValue();
@@ -102,9 +105,10 @@ public class MyUI extends UI {
     }
 
     private void kullaniciSil() {
-        KullaniciTextField idField = new KullaniciTextField();
-        idField.setCaption("Silinecek Kişi ID'si");
-        formLayout.addComponent(idField);
+
+        idDeleteField = new KullaniciTextField();
+        idDeleteField.setCaption("Silinecek Kişi ID'si");
+        formLayout.addComponent(idDeleteField);
 
         Button remove = new Button();
         remove.setCaption("Sil");
@@ -112,7 +116,7 @@ public class MyUI extends UI {
             @Override
             public void buttonClick(Button.ClickEvent clickEvent) {
                 Person person = new Person();
-                person.setId(Integer.parseInt(idField.getValue()));
+                person.setId(Integer.parseInt(idDeleteField.getValue()));
 
                 DatabaseTransaction dbTransaction = new DatabaseTransaction();
                 dbTransaction.removePerson(person);
